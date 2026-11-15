@@ -1,6 +1,6 @@
-//! Flowdata Plugin C-ABI & Guest SDK Library (`flowdata_plugin`).
+//! Parabellum Plugin C-ABI & Guest SDK Library (`parabellum_plugin`).
 //!
-//! Standalone, zero-dependency library defining the C-ABI boundary (`FLOWDATA_ABI_VERSION`),
+//! Standalone, zero-dependency library defining the C-ABI boundary (`PARABELLUM_ABI_VERSION`),
 //! memory-safe streaming readers (`BoundedStreamReader`, `WindowReader`), and compile-time
 //! task/manifest builders (`defineTask`, `defineBoundTask`, `definePureTask`, `defineBlackBoxTask`, `defineManifest`).
 
@@ -11,7 +11,7 @@ pub const sdk = @import("sdk/mod.zig");
 pub const reader = @import("reader/mod.zig");
 
 // Version & Manifest Contract
-pub const FLOWDATA_ABI_VERSION = types.FLOWDATA_ABI_VERSION;
+pub const PARABELLUM_ABI_VERSION = types.PARABELLUM_ABI_VERSION;
 pub const ABI_VERSION = types.ABI_VERSION;
 pub const MANIFEST_SYMBOL_NAME = types.MANIFEST_SYMBOL_NAME;
 

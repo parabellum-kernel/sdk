@@ -1,11 +1,11 @@
 const std = @import("std");
-const FLOWDATA_ABI_VERSION = @import("abi_version.zig").FLOWDATA_ABI_VERSION;
+const PARABELLUM_ABI_VERSION = @import("abi_version.zig").PARABELLUM_ABI_VERSION;
 const SemVer_ABI = @import("semver_abi.zig").SemVer_ABI;
 const TaskDescriptor_ABI = @import("task_descriptor_abi.zig").TaskDescriptor_ABI;
 
-/// Top-level manifest exported by every `.so` plugin via the `flowdata_module_manifest` symbol.
+/// Top-level manifest exported by every `.so` plugin via the `parabellum_module_manifest` symbol.
 pub const ModuleManifest_ABI = extern struct {
-    abi_version: u32 = FLOWDATA_ABI_VERSION,
+    abi_version: u32 = PARABELLUM_ABI_VERSION,
     module_name: [*:0]const u8,
     module_version: SemVer_ABI,
     tasks_ptr: [*]const TaskDescriptor_ABI,

@@ -1,7 +1,7 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 
-/// Pure-Zig in-memory unit test harness for Flowdata tasks and drivers.
+/// Pure-Zig in-memory unit test harness for Parabellum tasks and drivers.
 /// Allows testing tasks in isolation with `std.testing.allocator` leak detection
 /// and zero external engine binaries.
 pub const TaskHarness = struct {

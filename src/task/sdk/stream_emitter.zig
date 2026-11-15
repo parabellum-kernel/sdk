@@ -6,7 +6,7 @@ const mapHostError = @import("map_host_error.zig").mapHostError;
 /// Marker struct returned by `StreamEmitter.finish()` and recognized by `defineTaskService`
 /// inside `Channels(T)` so stream channels are not re-emitted as scalar rows.
 pub const StreamOutput = struct {
-    pub const is_flowdata_stream_output = true;
+    pub const is_parabellum_stream_output = true;
     finalized: bool = true,
 };
 

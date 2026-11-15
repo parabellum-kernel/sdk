@@ -7,7 +7,7 @@ pub fn Rows(comptime T: type) type {
         index: usize = 0,
 
         pub const ElementType = T;
-        pub const is_flowdata_rows = true;
+        pub const is_parabellum_rows = true;
 
         pub fn init(items: []const T) @This() {
             return .{

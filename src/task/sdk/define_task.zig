@@ -11,7 +11,7 @@ const TaskDescriptor_ABI = types.TaskDescriptor_ABI;
 const FieldMeta_ABI = types.FieldMeta_ABI;
 const TaskContext_ABI = types.TaskContext_ABI;
 const TaskStatus_ABI = types.TaskStatus_ABI;
-const FLOWDATA_ABI_VERSION = types.FLOWDATA_ABI_VERSION;
+const PARABELLUM_ABI_VERSION = types.PARABELLUM_ABI_VERSION;
 
 /// Deduces the `Inputs` struct type from `RunFnType` via compile-time reflection.
 /// If no struct input parameter exists, returns `void`.
@@ -26,7 +26,7 @@ fn deduceInputsType(comptime RunFnType: type) type {
     return void;
 }
 
-/// Maps a Zig field type to its Flowdata logical column type name (ARCH-009A §2.2).
+/// Maps a Zig field type to its Parabellum logical column type name (ARCH-009A §2.2).
 pub fn zigTypeToLogical(comptime T: type) [*:0]const u8 {
     return switch (@typeInfo(T)) {
         .optional => |opt| zigTypeToLogical(opt.child),
@@ -145,7 +145,7 @@ pub fn defineTask(comptime spec: anytype) TaskDescriptor_ABI {
     const Trampoline = struct {
         pub fn execute(raw_ctx: *TaskContext_ABI) callconv(.c) TaskStatus_ABI {
             const ctx = TaskContext.init(raw_ctx);
-            if (raw_ctx.abi_version != FLOWDATA_ABI_VERSION) {
+            if (raw_ctx.abi_version != PARABELLUM_ABI_VERSION) {
                 ctx.logError("ABI version mismatch in TaskContext_ABI");
                 return .fatal_error;
             }

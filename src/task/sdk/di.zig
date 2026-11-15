@@ -9,7 +9,7 @@ pub fn assertValidContext(comptime ContextImpl: type) void {
     comptime {
         const info = @typeInfo(ContextImpl);
         if (info != .@"struct") {
-            @compileError("[Flowdata DI] ContextImpl '" ++ @typeName(ContextImpl) ++ "' must be a struct");
+            @compileError("[Parabellum DI] ContextImpl '" ++ @typeName(ContextImpl) ++ "' must be a struct");
         }
 
         var requires_init = false;
@@ -21,7 +21,7 @@ pub fn assertValidContext(comptime ContextImpl: type) void {
         }
 
         if (requires_init and !@hasDecl(ContextImpl, "init")) {
-            @compileError("[Flowdata DI] Context '" ++ @typeName(ContextImpl) ++
+            @compileError("[Parabellum DI] Context '" ++ @typeName(ContextImpl) ++
                 "' has uninitialized fields and must declare 'pub fn init(self: *" ++
                 @typeName(ContextImpl) ++ ", alloc: Allocator, ctx: TaskContext) !void'");
         }
@@ -30,7 +30,7 @@ pub fn assertValidContext(comptime ContextImpl: type) void {
             const InitFn = @TypeOf(ContextImpl.init);
             const fn_info = @typeInfo(InitFn).@"fn";
             if (fn_info.param_types.len != 3 or fn_info.param_types[0].? != *ContextImpl) {
-                @compileError("[Flowdata DI] '" ++ @typeName(ContextImpl) ++
+                @compileError("[Parabellum DI] '" ++ @typeName(ContextImpl) ++
                     ".init' must have signature 'fn (self: *" ++ @typeName(ContextImpl) ++
                     ", alloc: Allocator, ctx: TaskContext) !void'");
             }
@@ -133,10 +133,10 @@ pub fn assertValidService(comptime ContextImpl: type, comptime Service: type) vo
         assertValidContext(ContextImpl);
         const s_info = @typeInfo(Service);
         if (s_info != .@"struct") {
-            @compileError("[Flowdata DI] Service '" ++ @typeName(Service) ++ "' must be a struct");
+            @compileError("[Parabellum DI] Service '" ++ @typeName(Service) ++ "' must be a struct");
         }
         if (!@hasDecl(Service, "execute")) {
-            @compileError("[Flowdata DI] Service '" ++ @typeName(Service) ++ "' must declare 'pub fn execute(...)'");
+            @compileError("[Parabellum DI] Service '" ++ @typeName(Service) ++ "' must declare 'pub fn execute(...)'");
         }
 
         const s_st = s_info.@"struct";
@@ -168,7 +168,7 @@ pub fn assertValidService(comptime ContextImpl: type, comptime Service: type) vo
             if (!resolved and has_default) resolved = true;
 
             if (!resolved) {
-                @compileError("[Flowdata DI] Unsatisfied dependency '" ++ f_name ++ ": " ++
+                @compileError("[Parabellum DI] Unsatisfied dependency '" ++ f_name ++ ": " ++
                     @typeName(f_type) ++ "' in service '" ++ @typeName(Service) ++
                     "' (not provided by '" ++ @typeName(ContextImpl) ++ "' or SDK built-ins)");
             }
@@ -282,7 +282,7 @@ pub fn injectService(
     return instance;
 }
 
-test "Flowdata DI: field injection, factory method injection, and SDK overrides" {
+test "Parabellum DI: field injection, factory method injection, and SDK overrides" {
     const testing = std.testing;
 
     const DummyService = struct {

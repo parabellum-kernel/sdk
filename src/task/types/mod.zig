@@ -27,7 +27,7 @@ pub const task_fn_abi = @import("task_fn_abi.zig");
 pub const net_abi = @import("net_abi.zig");
 pub const item_error = @import("item_error.zig");
 
-pub const FLOWDATA_ABI_VERSION = abi_version.FLOWDATA_ABI_VERSION;
+pub const PARABELLUM_ABI_VERSION = abi_version.PARABELLUM_ABI_VERSION;
 pub const ABI_VERSION = abi_version.ABI_VERSION;
 pub const MANIFEST_SYMBOL_NAME = manifest_symbol_name.MANIFEST_SYMBOL_NAME;
 pub const SemVer_ABI = semver_abi.SemVer_ABI;

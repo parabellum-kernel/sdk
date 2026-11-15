@@ -16,7 +16,7 @@ pub const RunSummary = struct {
     raw: c_api.HostRunSummary_ABI,
 
     pub fn deinit(self: *RunSummary) void {
-        c_api.flowdata_host_free_summary(self.engine, &self.raw);
+        c_api.parabellum_host_free_summary(self.engine, &self.raw);
     }
 
     pub fn outputJson(self: RunSummary) []const u8 {
@@ -30,21 +30,21 @@ pub const RunSummary = struct {
     }
 };
 
-/// Idiomatic Zig RAII wrapper around the precompiled `libflowdata_host` C-API.
+/// Idiomatic Zig RAII wrapper around the precompiled `libparabellum_host` C-API.
 pub const TestEngine = struct {
     handle: *c_api.EngineHandle_ABI,
 
     pub fn init() !TestEngine {
-        const h = c_api.flowdata_host_create() orelse return error.EngineInitFailed;
+        const h = c_api.parabellum_host_create() orelse return error.EngineInitFailed;
         return .{ .handle = h };
     }
 
     pub fn deinit(self: *TestEngine) void {
-        c_api.flowdata_host_destroy(self.handle);
+        c_api.parabellum_host_destroy(self.handle);
     }
 
     pub fn registerStaticModule(self: *TestEngine, alias_z: [*:0]const u8, manifest_ptr: *const anyopaque) !void {
-        const rc = c_api.flowdata_host_register_static_module(
+        const rc = c_api.parabellum_host_register_static_module(
             self.handle,
             alias_z,
             @ptrCast(manifest_ptr),
@@ -53,17 +53,17 @@ pub const TestEngine = struct {
     }
 
     pub fn registerStaticDriver(self: *TestEngine, name_z: [*:0]const u8, manifest: *const driver_abi.DriverManifest_ABI) !void {
-        const rc = c_api.flowdata_host_register_static_driver(self.handle, name_z, manifest);
+        const rc = c_api.parabellum_host_register_static_driver(self.handle, name_z, manifest);
         if (rc != .ok) return error.HostError;
     }
 
     pub fn registerStaticExtension(self: *TestEngine, name_z: [*:0]const u8, manifest: *const ext_abi.ExtensionManifest_ABI) !void {
-        const rc = c_api.flowdata_host_register_static_extension(self.handle, name_z, manifest);
+        const rc = c_api.parabellum_host_register_static_extension(self.handle, name_z, manifest);
         if (rc != .ok) return error.HostError;
     }
 
     pub fn loadPluginSo(self: *TestEngine, alias_z: [*:0]const u8, so_path_z: [*:0]const u8) !void {
-        const rc = c_api.flowdata_host_load_plugin_so(self.handle, alias_z, so_path_z);
+        const rc = c_api.parabellum_host_load_plugin_so(self.handle, alias_z, so_path_z);
         if (rc != .ok) return error.HostError;
     }
 
@@ -76,7 +76,7 @@ pub const TestEngine = struct {
             .input_payload_len = if (opts.input_payload) |p| p.len else 0,
             .plugin_search_dir = opts.plugin_search_dir,
         };
-        const rc = c_api.flowdata_host_run_pipeline(self.handle, &c_opts, &raw);
+        const rc = c_api.parabellum_host_run_pipeline(self.handle, &c_opts, &raw);
         if (rc != .ok) return error.PipelineRunFailed;
         return .{
             .engine = self.handle,

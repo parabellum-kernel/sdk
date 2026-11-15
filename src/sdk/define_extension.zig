@@ -11,7 +11,7 @@ pub const ExtensionMeta = struct {
 };
 
 /// Comptime builder that wraps a stateless extension registration function into
-/// a C-ABI `ExtensionManifest_ABI` ready for `@export(..., .{ .name = "flowdata_extension_manifest" })`.
+/// a C-ABI `ExtensionManifest_ABI` ready for `@export(..., .{ .name = "parabellum_extension_manifest" })`.
 pub fn defineExtension(comptime meta: ExtensionMeta) abi.ExtensionManifest_ABI {
     const Trampoline = struct {
         fn register(

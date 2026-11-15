@@ -5,7 +5,7 @@ pub const Slice_ABI = common.Slice_ABI;
 pub const HostError_ABI = common.HostError_ABI;
 pub const SemVer_ABI = common.SemVer_ABI;
 
-pub const EXTENSION_MANIFEST_SYMBOL_NAME = "flowdata_extension_manifest";
+pub const EXTENSION_MANIFEST_SYMBOL_NAME = "parabellum_extension_manifest";
 pub const EXTENSION_ABI_VERSION: u32 = 1;
 
 pub const KernelHandle_ABI = opaque {};

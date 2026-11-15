@@ -8,7 +8,7 @@ pub const DriverMeta = struct {
 };
 
 /// Comptime builder that wraps an idiomatic Zig driver type `DriverType` into a
-/// C-ABI `DriverManifest_ABI` ready for `@export(..., .{ .name = "flowdata_driver_manifest" })`.
+/// C-ABI `DriverManifest_ABI` ready for `@export(..., .{ .name = "parabellum_driver_manifest" })`.
 ///
 /// `DriverType` must implement:
 /// - `pub fn create(params: []const abi.ConfigParam_ABI) !*DriverType`

@@ -7,7 +7,7 @@ pub const RowView_ABI = common.RowView_ABI;
 pub const NamedField_ABI = common.NamedField_ABI;
 pub const SemVer_ABI = common.SemVer_ABI;
 
-pub const DRIVER_MANIFEST_SYMBOL_NAME = "flowdata_driver_manifest";
+pub const DRIVER_MANIFEST_SYMBOL_NAME = "parabellum_driver_manifest";
 pub const DRIVER_ABI_VERSION: u32 = 1;
 
 pub const DriverContext_ABI = opaque {};

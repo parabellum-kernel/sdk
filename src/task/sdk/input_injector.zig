@@ -49,7 +49,7 @@ pub fn resolveField(
     }
 
     // 1a. Lazy Rows iterator injection (ARCH-016 §6.4)
-    if (@typeInfo(T) == .@"struct" and @hasDecl(T, "is_flowdata_rows")) {
+    if (@typeInfo(T) == .@"struct" and @hasDecl(T, "is_parabellum_rows")) {
         const Elem = T.ElementType;
         if (try ctx.inputPayload(key_z)) |handle| {
             return T.init(handle.asSlice(Elem));

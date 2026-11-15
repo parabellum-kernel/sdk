@@ -4,9 +4,9 @@ pub const abi = @import("abi/mod.zig");
 pub const sdk = @import("sdk/mod.zig");
 pub const host = @import("host/mod.zig");
 pub const testing = @import("testing/mod.zig");
-pub const task = @import("flowdata_abi");
+pub const task = @import("parabellum_abi");
 
-test "flowdata-sdk ABI struct sizes and alignment" {
+test "parabellum-sdk ABI struct sizes and alignment" {
     try std.testing.expect(@sizeOf(abi.Slice_ABI) > 0);
     try std.testing.expect(@sizeOf(abi.DriverManifest_ABI) > 0);
     try std.testing.expect(@sizeOf(abi.ExtensionManifest_ABI) > 0);

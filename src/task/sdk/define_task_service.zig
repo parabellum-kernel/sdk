@@ -10,7 +10,7 @@ const di = @import("di.zig");
 const TaskDescriptor_ABI = types.TaskDescriptor_ABI;
 const TaskContext_ABI = types.TaskContext_ABI;
 const TaskStatus_ABI = types.TaskStatus_ABI;
-const FLOWDATA_ABI_VERSION = types.FLOWDATA_ABI_VERSION;
+const PARABELLUM_ABI_VERSION = types.PARABELLUM_ABI_VERSION;
 const computeOutputFields = define_pure_task.computeOutputFields;
 
 fn convertReflectedAbi(comptime T: type, val: types.ReflectedValue_ABI) !T {
@@ -257,7 +257,7 @@ pub fn DiContainer(comptime ContextImpl: type) type {
             const Trampoline = struct {
                 pub fn execute(raw_ctx: *TaskContext_ABI) callconv(.c) TaskStatus_ABI {
                     const ctx = TaskContext.init(raw_ctx);
-                    if (raw_ctx.abi_version != FLOWDATA_ABI_VERSION) {
+                    if (raw_ctx.abi_version != PARABELLUM_ABI_VERSION) {
                         ctx.logError("ABI version mismatch in TaskContext_ABI");
                         return .fatal_error;
                     }
@@ -711,13 +711,13 @@ pub fn DiContainer(comptime ContextImpl: type) type {
                         return result;
                     } else if (PayloadOut == void) {
                         return .ok;
-                    } else if (@typeInfo(PayloadOut) == .@"struct" and @hasDecl(PayloadOut, "is_flowdata_channels")) {
+                    } else if (@typeInfo(PayloadOut) == .@"struct" and @hasDecl(PayloadOut, "is_parabellum_channels")) {
                         const Inner = PayloadOut.ChannelsType;
                         const inner_info = @typeInfo(Inner);
                         const inner_s = inner_info.@"struct";
                         inline for (inner_s.field_names, inner_s.field_types) |f_name, FType| {
                             const val = @field(result.data, f_name);
-                            if (@typeInfo(FType) == .@"struct" and @hasDecl(FType, "is_flowdata_stream_output")) {
+                            if (@typeInfo(FType) == .@"struct" and @hasDecl(FType, "is_parabellum_stream_output")) {
                                 continue;
                             }
                             const f_key_z: [:0]const u8 = f_name;

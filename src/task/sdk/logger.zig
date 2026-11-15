@@ -46,7 +46,7 @@ pub const Logger = struct {
         stderr_file.print("{s} {s}\n", .{ lvl_str, msg }) catch {};
     }
 
-    /// Production constructor binding to the Flowdata C-ABI host.
+    /// Production constructor binding to the Parabellum C-ABI host.
     pub fn init(raw: *TaskContext_ABI) Logger {
         return .{ .ptr = raw, .vtable = &host_vtable };
     }

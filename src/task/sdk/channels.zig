@@ -7,7 +7,7 @@ pub fn Channels(comptime T: type) type {
         @compileError("Channels(T) expects a struct type, got " ++ @typeName(T));
     }
     return struct {
-        pub const is_flowdata_channels = true;
+        pub const is_parabellum_channels = true;
         pub const ChannelsType = T;
         data: T,
     };
