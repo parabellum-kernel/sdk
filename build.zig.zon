@@ -1,6 +1,6 @@
 .{
     .name = .flowdata_sdk,
-    .version = "0.1.0",
+    .version = "1.0.0",
     .minimum_zig_version = "0.17.1",
     .fingerprint = 0x1f3dd2ded520eec,
     .dependencies = .{},

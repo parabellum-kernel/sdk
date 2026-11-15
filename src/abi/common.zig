@@ -15,7 +15,7 @@ pub const SemVer_ABI = extern struct {
 };
 
 /// Current SDK / Engine compatibility version embedded automatically into manifests.
-pub const SDK_VERSION: SemVer_ABI = .{ .major = 0, .minor = 1, .patch = 0 };
+pub const SDK_VERSION: SemVer_ABI = .{ .major = 1, .minor = 0, .patch = 0 };
 
 pub const Slice_ABI = extern struct {
     ptr: ?[*]const u8,
