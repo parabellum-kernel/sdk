@@ -24,6 +24,7 @@ pub const TaskContext = task_context.TaskContext;
 pub const ZigTaskSpec = zig_task_spec.ZigTaskSpec;
 pub const defineTask = define_task.defineTask;
 pub const defineManifest = define_manifest.defineManifest;
+pub const defineManifestWithRequires = define_manifest.defineManifestWithRequires;
 pub const injectInputs = input_injector.injectInputs;
 pub const computeRequiredParams = input_injector.computeRequiredParams;
 pub const InputInjectorError = input_injector.InputInjectorError;

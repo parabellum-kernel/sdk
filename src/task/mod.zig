@@ -32,6 +32,8 @@ pub const TaskContext_ABI = types.TaskContext_ABI;
 pub const TaskExecuteFn_ABI = types.TaskExecuteFn_ABI;
 pub const TaskDescriptor_ABI = types.TaskDescriptor_ABI;
 pub const FieldMeta_ABI = types.FieldMeta_ABI;
+pub const PluginKind_ABI = types.PluginKind_ABI;
+pub const PluginRequirement_ABI = types.PluginRequirement_ABI;
 pub const ModuleManifest_ABI = types.ModuleManifest_ABI;
 pub const ItemError = types.ItemError;
 
@@ -62,6 +64,7 @@ pub const TaskContext = sdk.TaskContext;
 pub const ZigTaskSpec = sdk.ZigTaskSpec;
 pub const defineTask = sdk.defineTask;
 pub const defineManifest = sdk.defineManifest;
+pub const defineManifestWithRequires = sdk.defineManifestWithRequires;
 pub const injectInputs = sdk.injectInputs;
 pub const computeRequiredParams = sdk.computeRequiredParams;
 pub const InputInjectorError = sdk.InputInjectorError;

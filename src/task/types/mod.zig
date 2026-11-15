@@ -15,6 +15,7 @@ pub const host_api_vtable_abi = @import("host_api_vtable_abi.zig");
 pub const task_context_abi = @import("task_context_abi.zig");
 pub const task_execute_fn_abi = @import("task_execute_fn_abi.zig");
 pub const task_descriptor_abi = @import("task_descriptor_abi.zig");
+pub const plugin_requirement_abi = @import("plugin_requirement_abi.zig");
 pub const module_manifest_abi = @import("module_manifest_abi.zig");
 
 // Black Box C-ABI Types
@@ -47,6 +48,8 @@ pub const TaskExecuteFn_ABI = task_execute_fn_abi.TaskExecuteFn_ABI;
 pub const TaskDescriptor_ABI = task_descriptor_abi.TaskDescriptor_ABI;
 pub const FieldMeta_ABI = task_descriptor_abi.FieldMeta_ABI;
 pub const CanHandleFn_ABI = task_descriptor_abi.CanHandleFn_ABI;
+pub const PluginKind_ABI = plugin_requirement_abi.PluginKind_ABI;
+pub const PluginRequirement_ABI = plugin_requirement_abi.PluginRequirement_ABI;
 pub const ModuleManifest_ABI = module_manifest_abi.ModuleManifest_ABI;
 
 pub const MemContext_ABI = mem_context_abi.MemContext_ABI;

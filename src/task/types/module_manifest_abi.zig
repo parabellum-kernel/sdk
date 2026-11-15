@@ -2,6 +2,7 @@ const std = @import("std");
 const PARABELLUM_ABI_VERSION = @import("abi_version.zig").PARABELLUM_ABI_VERSION;
 const SemVer_ABI = @import("semver_abi.zig").SemVer_ABI;
 const TaskDescriptor_ABI = @import("task_descriptor_abi.zig").TaskDescriptor_ABI;
+const PluginRequirement_ABI = @import("plugin_requirement_abi.zig").PluginRequirement_ABI;
 
 /// Top-level manifest exported by every `.so` plugin via the `parabellum_module_manifest` symbol.
 pub const ModuleManifest_ABI = extern struct {
@@ -10,6 +11,8 @@ pub const ModuleManifest_ABI = extern struct {
     module_version: SemVer_ABI,
     tasks_ptr: [*]const TaskDescriptor_ABI,
     tasks_len: usize,
+    requires_ptr: ?[*]const PluginRequirement_ABI = null,
+    requires_len: usize = 0,
 
     pub fn nameSlice(self: ModuleManifest_ABI) []const u8 {
         return std.mem.span(self.module_name);
@@ -18,6 +21,11 @@ pub const ModuleManifest_ABI = extern struct {
     pub fn tasksSlice(self: ModuleManifest_ABI) []const TaskDescriptor_ABI {
         if (self.tasks_len == 0) return &.{};
         return self.tasks_ptr[0..self.tasks_len];
+    }
+
+    pub fn requiresSlice(self: ModuleManifest_ABI) []const PluginRequirement_ABI {
+        if (self.requires_len == 0 or self.requires_ptr == null) return &.{};
+        return self.requires_ptr.?[0..self.requires_len];
     }
 
     /// Resolves a task descriptor within this module:
