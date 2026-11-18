@@ -296,11 +296,12 @@ pub fn DiContainer(comptime ContextImpl: type) type {
                             return .fatal_error;
                         };
 
-                        // 4. Fetch primary input stream
+                        // 4. Fetch primary input stream (prefer explicit primary/elemental field or matched activation payload "" over pipeline-level stream/input)
                         const maybe_primary = (ctx.inputPayload("primary") catch null) orelse
+                            (if (is_composite_elemental) (ctx.inputPayload(comptime elemental_field_name ++ "") catch null) else null) orelse
+                            (ctx.inputPayload("") catch null) orelse
                             (ctx.inputPayload("stream") catch null) orelse
-                            (ctx.inputPayload("input") catch null) orelse
-                            (ctx.inputPayload("") catch null);
+                            (ctx.inputPayload("input") catch null);
 
                         const primary_payload = maybe_primary orelse {
                             ctx.emitTypedSlice(null, ElemType, &.{}) catch {};
@@ -788,8 +789,8 @@ pub fn DiContainer(comptime ContextImpl: type) type {
                     }
                     if (comptime is_elemental) {
                         const item_schema_id = comptime types.schemaId(ItemType);
-                        if (payload_abi.schema_id != 0 and item_schema_id != 0 and payload_abi.schema_id == item_schema_id) {
-                            return true;
+                        if (payload_abi.schema_id != 0 and item_schema_id != 0) {
+                            return payload_abi.schema_id == item_schema_id;
                         }
                     }
 
