@@ -5,6 +5,7 @@ pub const sdk = @import("sdk/mod.zig");
 pub const host = @import("host/mod.zig");
 pub const testing = @import("testing/mod.zig");
 pub const task = @import("parabellum_abi");
+pub const WebClient = sdk.WebClient;
 pub const JobStatus = sdk.JobStatus;
 pub const JobRecord = sdk.JobRecord;
 pub const JobItem = sdk.JobItem;
@@ -31,4 +32,5 @@ test "parabellum-sdk ABI struct sizes and alignment" {
 
 test {
     _ = testing.task_harness;
+    _ = sdk.web_client;
 }

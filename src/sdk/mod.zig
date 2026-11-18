@@ -2,6 +2,9 @@ pub const define_driver = @import("define_driver.zig");
 pub const define_extension = @import("define_extension.zig");
 pub const job = @import("job.zig");
 pub const event = @import("event.zig");
+pub const web_client = @import("web_client.zig");
+
+pub const WebClient = web_client.WebClient;
 
 pub const DriverMeta = define_driver.DriverMeta;
 pub const defineDriver = define_driver.defineDriver;
