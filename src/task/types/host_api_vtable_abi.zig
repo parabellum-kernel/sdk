@@ -221,4 +221,20 @@ pub const HostApiVTable_ABI = extern struct {
         ctx: *TaskContext_ABI,
         channel_name: ?[*:0]const u8,
     ) callconv(.c) HostError_ABI = null,
+
+    // --- 11. Unified Datasources / Storage Repositories ---
+    /// Resolves a configured datasource by ID, returning its opaque `*RepoHandle_ABI` and `*const StorageRepositoryVTable_ABI`.
+    get_repository: ?*const fn (
+        ctx: *TaskContext_ABI,
+        datasource_id: [*:0]const u8,
+        out_repo: *?*anyopaque,
+        out_vtable: *?*const anyopaque,
+    ) callconv(.c) HostError_ABI = null,
+
+    // --- 12. Task Progress Reporting ---
+    report_progress: ?*const fn (
+        ctx: *TaskContext_ABI,
+        done: u64,
+        total: u64,
+    ) callconv(.c) void = null,
 };

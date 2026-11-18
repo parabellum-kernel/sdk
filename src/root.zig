@@ -5,6 +5,14 @@ pub const sdk = @import("sdk/mod.zig");
 pub const host = @import("host/mod.zig");
 pub const testing = @import("testing/mod.zig");
 pub const task = @import("parabellum_abi");
+pub const JobStatus = sdk.JobStatus;
+pub const JobRecord = sdk.JobRecord;
+pub const JobItem = sdk.JobItem;
+pub const EventKind = sdk.EventKind;
+pub const EventPayload = sdk.EventPayload;
+pub const DaemonEvent = sdk.DaemonEvent;
+pub const CustomEvent = sdk.CustomEvent;
+pub const KeyValue = sdk.KeyValue;
 
 test "parabellum-sdk ABI struct sizes and alignment" {
     try std.testing.expect(@sizeOf(abi.Slice_ABI) > 0);

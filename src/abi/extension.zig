@@ -74,6 +74,13 @@ pub const InboundTransportVTable_ABI = extern struct {
         dispatch_fn: HostDispatchFn_ABI,
     ) callconv(.c) HostError_ABI,
     deinit: *const fn (ctx: *TransportCtx_ABI) callconv(.c) void,
+    serve_args: ?*const fn (
+        ctx: *TransportCtx_ABI,
+        argv: [*]const Slice_ABI,
+        argc: usize,
+        host_dispatcher: *anyopaque,
+        dispatch_fn: HostDispatchFn_ABI,
+    ) callconv(.c) HostError_ABI = null,
 };
 
 pub const KernelApiVTable_ABI = extern struct {
@@ -95,14 +102,19 @@ pub const KernelApiVTable_ABI = extern struct {
         cmd_name: [*:0]const u8,
         help_text: [*:0]const u8,
         ctx: *CommandCtx_ABI,
-        exec_fn: *const fn (ctx: *CommandCtx_ABI, args_json: Slice_ABI) callconv(.c) c_int,
+        exec_fn: *const fn (
+            ctx: *CommandCtx_ABI,
+            argv: [*]const Slice_ABI,
+            argc: usize,
+            out_resp: *InboundResponse_ABI,
+        ) callconv(.c) HostError_ABI,
     ) callconv(.c) HostError_ABI,
 
     emit_log: *const fn (
         kernel: *KernelHandle_ABI,
         level: u32,
         msg: Slice_ABI,
-    ) callconv(.c) void,
+    ) callconv(.c) HostError_ABI,
 };
 
 pub const ExtensionManifest_ABI = extern struct {
