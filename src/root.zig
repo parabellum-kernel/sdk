@@ -1,6 +1,7 @@
 const std = @import("std");
 
 pub const abi = @import("abi/mod.zig");
+pub const cli = @import("cli/mod.zig");
 pub const task = @import("task/mod.zig");
 pub const driver = @import("driver/mod.zig");
 pub const extension = @import("extension/mod.zig");
@@ -27,6 +28,7 @@ test "parabellum-sdk ABI struct sizes and alignment" {
 
 test {
     _ = abi.task;
+    _ = cli;
     _ = task;
     _ = testing.task_harness;
     _ = client;
