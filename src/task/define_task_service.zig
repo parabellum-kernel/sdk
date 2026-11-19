@@ -1,7 +1,7 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const types = @import("../types/mod.zig");
-const reader = @import("../reader/mod.zig");
+const types = @import("../abi/task/mod.zig");
+const reader = @import("reader/mod.zig");
 const TaskContext = @import("task_context.zig").TaskContext;
 const input_injector = @import("input_injector.zig");
 const define_pure_task = @import("define_pure_task.zig");
@@ -324,7 +324,7 @@ pub fn DiContainer(comptime ContextImpl: type) type {
                         const is_collect = std.mem.eql(u8, err_policy, "collect");
                         const is_fail_fast = !is_skip and !is_collect;
 
-                        const ItemError = @import("../types/item_error.zig").ItemError;
+                        const ItemError = @import("../abi/task/item_error.zig").ItemError;
 
                         const ErrorCollector = struct {
                             policy_fail_fast: bool,

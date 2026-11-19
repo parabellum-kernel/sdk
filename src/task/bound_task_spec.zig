@@ -1,4 +1,4 @@
-const types = @import("../types/mod.zig");
+const types = @import("../abi/task/mod.zig");
 const TaskContext = @import("task_context.zig").TaskContext;
 
 /// Specification for a task that receives a strongly-typed, auto-injected `Inputs` struct.

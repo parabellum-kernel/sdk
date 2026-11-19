@@ -34,3 +34,6 @@ pub fn defineExtension(comptime meta: ExtensionMeta) abi.ExtensionManifest_ABI {
         .deinit = null,
     };
 }
+
+pub const Meta = ExtensionMeta;
+pub const define = defineExtension;

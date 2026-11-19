@@ -1,5 +1,5 @@
 const std = @import("std");
-const sdk = @import("../sdk/mod.zig");
+const sdk = @import("../mod.zig");
 const ClampedSubRegion = @import("clamped_sub_region.zig").ClampedSubRegion;
 
 const SdkError = sdk.SdkError;

@@ -1,91 +1,61 @@
-//! Parabellum Plugin C-ABI & Guest SDK Library (`parabellum_plugin`).
+//! Parabellum Task Guest SDK (`parabellum_sdk.task`).
 //!
-//! Standalone, zero-dependency library defining the C-ABI boundary (`PARABELLUM_ABI_VERSION`),
-//! memory-safe streaming readers (`BoundedStreamReader`, `WindowReader`), and compile-time
-//! task/manifest builders (`defineTask`, `defineBoundTask`, `definePureTask`, `defineBlackBoxTask`, `defineManifest`).
+//! Provides compile-time task/manifest builders, task-scoped DI (`DiContainer`),
+//! `TaskContext`, `Logger`, and memory-safe streaming readers (`BoundedStreamReader`, `WindowReader`).
 
 const std = @import("std");
 
-pub const types = @import("types/mod.zig");
-pub const sdk = @import("sdk/mod.zig");
 pub const reader = @import("reader/mod.zig");
+pub const abi = @import("../abi/task/mod.zig");
 
-// Version & Manifest Contract
-pub const PARABELLUM_ABI_VERSION = types.PARABELLUM_ABI_VERSION;
-pub const ABI_VERSION = types.ABI_VERSION;
-pub const MANIFEST_SYMBOL_NAME = types.MANIFEST_SYMBOL_NAME;
+pub const sdk_error = @import("sdk_error.zig");
+pub const map_host_error = @import("map_host_error.zig");
+pub const task_context = @import("task_context.zig");
+pub const zig_task_spec = @import("zig_task_spec.zig");
+pub const define_task = @import("define_task.zig");
+pub const define_manifest = @import("define_manifest.zig");
+pub const input_injector = @import("input_injector.zig");
+pub const bound_task_spec = @import("bound_task_spec.zig");
+pub const define_bound_task = @import("define_bound_task.zig");
+pub const logger = @import("logger.zig");
+pub const pure_task_spec = @import("pure_task_spec.zig");
+pub const define_pure_task = @import("define_pure_task.zig");
+pub const abi_logger = @import("abi_logger.zig");
+pub const define_blackbox_task = @import("define_blackbox_task.zig");
+pub const di = @import("di.zig");
+pub const define_task_service = @import("define_task_service.zig");
+pub const channels_mod = @import("channels.zig");
+pub const rows_mod = @import("rows.zig");
+pub const stream_emitter = @import("stream_emitter.zig");
 
-// C-ABI Types
-pub const SemVer_ABI = types.SemVer_ABI;
-pub const ValueTag_ABI = types.ValueTag_ABI;
-pub const Slice_ABI = types.Slice_ABI;
-pub const ValuePayload_ABI = types.ValuePayload_ABI;
-pub const Value_ABI = types.Value_ABI;
-pub const NamedField_ABI = types.NamedField_ABI;
-pub const WindowView_ABI = types.WindowView_ABI;
-pub const RowView_ABI = types.RowView_ABI;
-pub const LogLevel_ABI = types.LogLevel_ABI;
-pub const HostError_ABI = types.HostError_ABI;
-pub const TaskStatus_ABI = types.TaskStatus_ABI;
-pub const HostApiVTable_ABI = types.HostApiVTable_ABI;
-pub const TaskContext_ABI = types.TaskContext_ABI;
-pub const TaskExecuteFn_ABI = types.TaskExecuteFn_ABI;
-pub const TaskDescriptor_ABI = types.TaskDescriptor_ABI;
-pub const FieldMeta_ABI = types.FieldMeta_ABI;
-pub const PluginKind_ABI = types.PluginKind_ABI;
-pub const PluginRequirement_ABI = types.PluginRequirement_ABI;
-pub const ModuleManifest_ABI = types.ModuleManifest_ABI;
-pub const ItemError = types.ItemError;
-
-// Black Box C-ABI Types & Networking ABI
-pub const MemContext_ABI = types.MemContext_ABI;
-pub const PayloadHandle_ABI = types.PayloadHandle_ABI;
-pub const PayloadRepr_ABI = types.PayloadRepr_ABI;
-pub const Lowered = types.Lowered;
-pub const lowerValue = types.lowerValue;
-pub const liftValue = types.liftValue;
-pub const schemaId = types.schemaId;
-pub const ReflectedTag_ABI = types.ReflectedTag_ABI;
-pub const ReflectedValue_ABI = types.ReflectedValue_ABI;
-pub const ReflectFn_ABI = types.ReflectFn_ABI;
-pub const LogFn_ABI = types.LogFn_ABI;
-pub const ExecutionOptions_ABI = types.ExecutionOptions_ABI;
-pub const TaskResult_ABI = types.TaskResult_ABI;
-pub const TaskFn_ABI = types.TaskFn_ABI;
-pub const NetRequest_ABI = types.NetRequest_ABI;
-pub const NetResponse_ABI = types.NetResponse_ABI;
-pub const NetStreamHandle_ABI = types.NetStreamHandle_ABI;
-pub const NetRequestFn_ABI = types.NetRequestFn_ABI;
-
-// Plugin SDK
-pub const SdkError = sdk.SdkError;
-pub const mapHostError = sdk.mapHostError;
-pub const TaskContext = sdk.TaskContext;
-pub const ZigTaskSpec = sdk.ZigTaskSpec;
-pub const defineTask = sdk.defineTask;
-pub const defineManifest = sdk.defineManifest;
-pub const defineManifestWithRequires = sdk.defineManifestWithRequires;
-pub const injectInputs = sdk.injectInputs;
-pub const computeRequiredParams = sdk.computeRequiredParams;
-pub const InputInjectorError = sdk.InputInjectorError;
-pub const BoundTaskSpec = sdk.BoundTaskSpec;
-pub const defineBoundTask = sdk.defineBoundTask;
-pub const Logger = sdk.Logger;
-pub const PureTaskSpec = sdk.PureTaskSpec;
-pub const computeOutputFields = sdk.computeOutputFields;
-pub const definePureTask = sdk.definePureTask;
-pub const AbiLogger = sdk.AbiLogger;
-pub const defineBlackBoxTask = sdk.defineBlackBoxTask;
-pub const di = sdk.di;
-pub const DiContainer = sdk.DiContainer;
-pub const DefaultDiContainer = sdk.DefaultDiContainer;
-pub const defineTaskService = sdk.defineTaskService;
-pub const EmptyContext = sdk.EmptyContext;
-pub const Channels = sdk.Channels;
-pub const channels = sdk.channels;
-pub const Rows = sdk.Rows;
-pub const StreamEmitter = sdk.StreamEmitter;
-pub const StreamOutput = sdk.StreamOutput;
+// Task Guest SDK
+pub const SdkError = sdk_error.SdkError;
+pub const mapHostError = map_host_error.mapHostError;
+pub const TaskContext = task_context.TaskContext;
+pub const ZigTaskSpec = zig_task_spec.ZigTaskSpec;
+pub const defineTask = define_task.defineTask;
+pub const defineManifest = define_manifest.defineManifest;
+pub const defineManifestWithRequires = define_manifest.defineManifestWithRequires;
+pub const injectInputs = input_injector.injectInputs;
+pub const computeRequiredParams = input_injector.computeRequiredParams;
+pub const InputInjectorError = input_injector.InputInjectorError;
+pub const BoundTaskSpec = bound_task_spec.BoundTaskSpec;
+pub const defineBoundTask = define_bound_task.defineBoundTask;
+pub const Logger = logger.Logger;
+pub const PureTaskSpec = pure_task_spec.PureTaskSpec;
+pub const computeOutputFields = define_pure_task.computeOutputFields;
+pub const definePureTask = define_pure_task.definePureTask;
+pub const AbiLogger = abi_logger.AbiLogger;
+pub const defineBlackBoxTask = define_blackbox_task.defineBlackBoxTask;
+pub const DiContainer = define_task_service.DiContainer;
+pub const DefaultDiContainer = define_task_service.DefaultDiContainer;
+pub const defineTaskService = define_task_service.defineTaskService;
+pub const EmptyContext = define_task_service.EmptyContext;
+pub const Channels = channels_mod.Channels;
+pub const channels = channels_mod;
+pub const Rows = rows_mod.Rows;
+pub const StreamEmitter = stream_emitter.StreamEmitter;
+pub const StreamOutput = stream_emitter.StreamOutput;
 
 // Streaming Readers
 pub const BoundedStreamReader = reader.BoundedStreamReader;

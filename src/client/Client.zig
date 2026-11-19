@@ -1,9 +1,9 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const abi = @import("../abi/mod.zig");
-const task_abi = @import("parabellum_abi");
+const task_abi = @import("../task/mod.zig");
 
-pub const WebClientError = error{
+pub const ClientError = error{
     RepositoryNotSupported,
     DatasourceNotFound,
     ReadNotSupported,
@@ -15,12 +15,12 @@ pub const WebClientError = error{
 
 /// Ergonomic comptime-typed client over `(RepoHandle_ABI, *const StorageRepositoryVTable_ABI)`
 /// for both typed REST APIs and schemaless HTML/binary scraping.
-pub const WebClient = struct {
+pub const Client = struct {
     handle: *abi.driver.RepoHandle_ABI,
     vtable: *const abi.driver.StorageRepositoryVTable_ABI,
 
     /// Resolves a datasource by ID from `TaskContext` across the C-ABI boundary.
-    pub fn fromContext(ctx: task_abi.TaskContext, datasource_id: [*:0]const u8) WebClientError!WebClient {
+    pub fn fromContext(ctx: task_abi.TaskContext, datasource_id: [*:0]const u8) ClientError!Client {
         const get_repo = ctx.raw.host.get_repository orelse return error.RepositoryNotSupported;
         var raw_handle: ?*anyopaque = null;
         var raw_vtable: ?*const anyopaque = null;
@@ -35,7 +35,7 @@ pub const WebClient = struct {
 
     /// Executes a read endpoint and returns the raw response body (`body` / `data` field) as an owned slice.
     pub fn fetchBytes(
-        self: WebClient,
+        self: Client,
         allocator: Allocator,
         endpoint: []const u8,
         params: anytype,
@@ -87,7 +87,7 @@ pub const WebClient = struct {
 
     /// Alias for `fetchBytes` returning the raw UTF-8 HTML/text document for scraping tasks.
     pub fn fetchText(
-        self: WebClient,
+        self: Client,
         allocator: Allocator,
         endpoint: []const u8,
         params: anytype,
@@ -97,7 +97,7 @@ pub const WebClient = struct {
 
     /// Executes a read endpoint and decodes the first returned row into comptime struct `T`.
     pub fn fetchOne(
-        self: WebClient,
+        self: Client,
         comptime T: type,
         allocator: Allocator,
         endpoint: []const u8,
@@ -134,7 +134,7 @@ pub const WebClient = struct {
 
     /// Executes a read endpoint (including paginated endpoints) and collects all rows into `[]T`.
     pub fn fetchAll(
-        self: WebClient,
+        self: Client,
         comptime T: type,
         allocator: Allocator,
         endpoint: []const u8,
@@ -177,7 +177,7 @@ pub const WebClient = struct {
     /// Executes a write/mutation endpoint (`POST`/`PUT`/`PATCH`/`DELETE`) with `params` struct/tuple
     /// and optional `raw_bytes`, automatically reading `last_put_result` when `RespT != void`.
     pub fn send(
-        self: WebClient,
+        self: Client,
         comptime RespT: type,
         allocator: Allocator,
         endpoint: []const u8,
@@ -358,7 +358,7 @@ fn decodeField(comptime F: type, allocator: Allocator, av: abi.Value_ABI) !F {
                     .null_val => try allocator.dupe(u8, ""),
                 };
             }
-            @compileError("Unsupported pointer field type in WebClient.decodeField: " ++ @typeName(F));
+            @compileError("Unsupported pointer field type in Client.decodeField: " ++ @typeName(F));
         },
         .int => |it| {
             return switch (av.tag) {
@@ -389,11 +389,11 @@ fn decodeField(comptime F: type, allocator: Allocator, av: abi.Value_ABI) !F {
                 else => false,
             };
         },
-        else => @compileError("Unsupported field type in WebClient.decodeField: " ++ @typeName(F)),
+        else => @compileError("Unsupported field type in Client.decodeField: " ++ @typeName(F)),
     }
 }
 
-test "WebClient fetchText, fetchBytes, fetchOne, fetchAll, and send" {
+test "Client fetchText, fetchBytes, fetchOne, fetchAll, and send" {
     const alloc = std.testing.allocator;
 
     const MockRepo = struct {
@@ -498,7 +498,7 @@ test "WebClient fetchText, fetchBytes, fetchOne, fetchAll, and send" {
         };
     };
 
-    const client = WebClient{
+    const client = Client{
         .handle = @ptrCast(&MockRepo.dummy_repo),
         .vtable = &MockRepo.vt,
     };

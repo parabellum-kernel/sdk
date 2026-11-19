@@ -1,6 +1,7 @@
 pub const common = @import("common.zig");
 pub const driver = @import("driver.zig");
 pub const extension = @import("extension.zig");
+pub const task = @import("task/mod.zig");
 
 pub const SemVer_ABI = common.SemVer_ABI;
 pub const Slice_ABI = common.Slice_ABI;

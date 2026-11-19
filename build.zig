@@ -79,36 +79,22 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const abi_mod = b.addModule("parabellum_abi", .{
-        .root_source_file = b.path("src/task/mod.zig"),
-        .target = target,
-        .optimize = optimize,
-        .link_libc = true,
-    });
-    b.modules.put(b.allocator, b.dupe("parabellum_plugin"), abi_mod) catch @panic("OOM");
-
     const sdk_mod = b.addModule("parabellum_sdk", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
-        .imports = &.{
-            .{ .name = "parabellum_abi", .module = abi_mod },
-        },
+        .link_libc = true,
     });
 
     const test_mod = b.createModule(.{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
-        .imports = &.{
-            .{ .name = "parabellum_abi", .module = abi_mod },
-        },
+        .link_libc = true,
     });
 
     const run_tests = b.addRunArtifact(b.addTest(.{ .root_module = test_mod }));
-    const run_abi_tests = b.addRunArtifact(b.addTest(.{ .root_module = abi_mod }));
     const test_step = b.step("test", "Run parabellum-sdk unit tests");
     test_step.dependOn(&run_tests.step);
-    test_step.dependOn(&run_abi_tests.step);
     _ = sdk_mod;
 }

@@ -1,5 +1,5 @@
-const sdk = @import("../sdk/mod.zig");
-const types = @import("../types/mod.zig");
+const sdk = @import("../mod.zig");
+const types = @import("../../abi/task/mod.zig");
 
 const SdkError = sdk.SdkError;
 const TaskContext = sdk.TaskContext;

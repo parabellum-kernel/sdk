@@ -1,4 +1,4 @@
-const types = @import("../types/mod.zig");
+const types = @import("../abi/task/mod.zig");
 const TaskContext = @import("task_context.zig").TaskContext;
 
 /// Declarative specification used with `defineTask` to wrap an idiomatic Zig function

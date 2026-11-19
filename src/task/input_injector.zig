@@ -1,6 +1,6 @@
 const std = @import("std");
-const reader = @import("../reader/mod.zig");
-const types = @import("../types/mod.zig");
+const reader = @import("reader/mod.zig");
+const types = @import("../abi/task/mod.zig");
 const TaskContext = @import("task_context.zig").TaskContext;
 const SdkError = @import("sdk_error.zig").SdkError;
 

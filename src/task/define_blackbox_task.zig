@@ -1,6 +1,6 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const types = @import("../types/mod.zig");
+const types = @import("../abi/task/mod.zig");
 const define_pure_task = @import("define_pure_task.zig");
 const abi_logger = @import("abi_logger.zig");
 

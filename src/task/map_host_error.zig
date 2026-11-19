@@ -1,4 +1,4 @@
-const types = @import("../types/mod.zig");
+const types = @import("../abi/task/mod.zig");
 const SdkError = @import("sdk_error.zig").SdkError;
 
 pub fn mapHostError(err: types.HostError_ABI) SdkError!void {

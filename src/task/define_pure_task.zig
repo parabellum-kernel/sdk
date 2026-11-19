@@ -1,5 +1,5 @@
 const std = @import("std");
-const types = @import("../types/mod.zig");
+const types = @import("../abi/task/mod.zig");
 const TaskContext = @import("task_context.zig").TaskContext;
 const PureTaskSpec = @import("pure_task_spec.zig").PureTaskSpec;
 const Logger = @import("logger.zig").Logger;

@@ -1,6 +1,6 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const types = @import("../types/mod.zig");
+const types = @import("../abi/task/mod.zig");
 const TaskContext = @import("task_context.zig").TaskContext;
 const input_injector = @import("input_injector.zig");
 const define_pure_task = @import("define_pure_task.zig");

@@ -1,19 +1,14 @@
 const std = @import("std");
 
 pub const abi = @import("abi/mod.zig");
-pub const sdk = @import("sdk/mod.zig");
+pub const task = @import("task/mod.zig");
+pub const driver = @import("driver/mod.zig");
+pub const extension = @import("extension/mod.zig");
+pub const client = @import("client/mod.zig");
+pub const job = @import("job/mod.zig");
+pub const event = @import("event/mod.zig");
 pub const host = @import("host/mod.zig");
 pub const testing = @import("testing/mod.zig");
-pub const task = @import("parabellum_abi");
-pub const WebClient = sdk.WebClient;
-pub const JobStatus = sdk.JobStatus;
-pub const JobRecord = sdk.JobRecord;
-pub const JobItem = sdk.JobItem;
-pub const EventKind = sdk.EventKind;
-pub const EventPayload = sdk.EventPayload;
-pub const DaemonEvent = sdk.DaemonEvent;
-pub const CustomEvent = sdk.CustomEvent;
-pub const KeyValue = sdk.KeyValue;
 
 test "parabellum-sdk ABI struct sizes and alignment" {
     try std.testing.expect(@sizeOf(abi.Slice_ABI) > 0);
@@ -31,6 +26,8 @@ test "parabellum-sdk ABI struct sizes and alignment" {
 }
 
 test {
+    _ = abi.task;
+    _ = task;
     _ = testing.task_harness;
-    _ = sdk.web_client;
+    _ = client;
 }

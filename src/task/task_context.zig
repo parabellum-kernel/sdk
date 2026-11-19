@@ -1,6 +1,6 @@
 const std = @import("std");
-const types = @import("../types/mod.zig");
-const reader = @import("../reader/mod.zig");
+const types = @import("../abi/task/mod.zig");
+const reader = @import("reader/mod.zig");
 const SdkError = @import("sdk_error.zig").SdkError;
 const mapHostError = @import("map_host_error.zig").mapHostError;
 
@@ -98,18 +98,18 @@ pub const TaskContext = struct {
         return 1;
     }
 
-    pub fn inputPayload(self: TaskContext, name: [:0]const u8) SdkError!?@import("../types/payload_handle_abi.zig").PayloadHandle_ABI {
+    pub fn inputPayload(self: TaskContext, name: [:0]const u8) SdkError!?@import("../abi/task/payload_handle_abi.zig").PayloadHandle_ABI {
         const f = self.raw.host.input_payload orelse return null;
-        var out_handle: @import("../types/payload_handle_abi.zig").PayloadHandle_ABI = undefined;
+        var out_handle: @import("../abi/task/payload_handle_abi.zig").PayloadHandle_ABI = undefined;
         const rc = f(self.raw, name.ptr, &out_handle);
         if (rc == .not_found) return null;
         try mapHostError(rc);
         return out_handle;
     }
 
-    pub fn executionOptions(self: TaskContext) ?@import("../types/execution_options_abi.zig").ExecutionOptions_ABI {
+    pub fn executionOptions(self: TaskContext) ?@import("../abi/task/execution_options_abi.zig").ExecutionOptions_ABI {
         const f = self.raw.host.get_execution_options orelse return null;
-        var opts: @import("../types/execution_options_abi.zig").ExecutionOptions_ABI = undefined;
+        var opts: @import("../abi/task/execution_options_abi.zig").ExecutionOptions_ABI = undefined;
         const rc = f(self.raw, &opts);
         if (rc != .ok) return null;
         return opts;
@@ -266,7 +266,7 @@ pub const TaskContext = struct {
         slice: []const T,
     ) SdkError!void {
         const emit_fn = self.raw.host.emit_typed_slice orelse return error.InvalidOperation;
-        const abi_handle = @import("../types/payload_handle_abi.zig").PayloadHandle_ABI.fromSlice(T, slice);
+        const abi_handle = @import("../abi/task/payload_handle_abi.zig").PayloadHandle_ABI.fromSlice(T, slice);
         const ch_ptr = if (channel_name) |c| c.ptr else null;
         const rc = emit_fn(self.raw, ch_ptr, &abi_handle);
         try mapHostError(rc);

@@ -1,4 +1,4 @@
-const types = @import("../types/mod.zig");
+const types = @import("../abi/task/mod.zig");
 
 const ModuleManifest_ABI = types.ModuleManifest_ABI;
 const TaskDescriptor_ABI = types.TaskDescriptor_ABI;

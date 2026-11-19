@@ -1,5 +1,5 @@
 const std = @import("std");
-const types = @import("../types/mod.zig");
+const types = @import("../abi/task/mod.zig");
 const define_task = @import("define_task.zig");
 
 const TaskDescriptor_ABI = types.TaskDescriptor_ABI;

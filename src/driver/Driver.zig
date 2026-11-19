@@ -135,3 +135,6 @@ pub fn defineDriver(comptime DriverType: type, comptime meta: DriverMeta) abi.Dr
         .create_repo = Trampoline.createRepo,
     };
 }
+
+pub const Meta = DriverMeta;
+pub const define = defineDriver;
