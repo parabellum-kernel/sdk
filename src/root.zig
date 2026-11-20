@@ -8,6 +8,8 @@ pub const extension = @import("extension/mod.zig");
 pub const client = @import("client/mod.zig");
 pub const job = @import("job/mod.zig");
 pub const event = @import("event/mod.zig");
+pub const capabilities = @import("capabilities/mod.zig");
+pub const transport = @import("transport/mod.zig");
 pub const host = @import("host/mod.zig");
 pub const testing = @import("testing/mod.zig");
 
@@ -32,4 +34,6 @@ test {
     _ = task;
     _ = testing.task_harness;
     _ = client;
+    _ = capabilities;
+    _ = transport;
 }

@@ -12,6 +12,8 @@ pub const KernelHandle_ABI = opaque {};
 pub const SubscriberCtx_ABI = opaque {};
 pub const TransportCtx_ABI = opaque {};
 pub const CommandCtx_ABI = opaque {};
+pub const InboundStreamCtx_ABI = opaque {};
+pub const InboundStreamHandle_ABI = opaque {};
 
 pub const TelemetryEventKind_ABI = enum(u32) {
     pipeline_start = 1,
@@ -23,6 +25,13 @@ pub const TelemetryEventKind_ABI = enum(u32) {
     task_log = 7,
     outbound_exchange = 8,
     outbound_wire_packet = 9,
+    job_started = 10,
+    job_progress = 11,
+    job_completed = 12,
+    job_failed = 13,
+    artifact_ready = 14,
+    vfs_changed = 15,
+    input_required = 16,
 };
 
 pub const TelemetryEvent_ABI = extern struct {
@@ -47,11 +56,20 @@ pub const TelemetrySubscriberVTable_ABI = extern struct {
     deinit: ?*const fn (ctx: *SubscriberCtx_ABI) callconv(.c) void = null,
 };
 
+/// Pull-based inbound stream VTable for large/chunked request bodies (O(1) RAM).
+pub const InboundStreamVTable_ABI = extern struct {
+    /// Returns bytes read (> 0), 0 on EOF, or < 0 on error.
+    read: *const fn (ctx: *InboundStreamCtx_ABI, buf_ptr: [*]u8, buf_len: usize) callconv(.c) isize,
+    close: ?*const fn (ctx: *InboundStreamCtx_ABI) callconv(.c) void = null,
+};
+
 pub const InboundRequest_ABI = extern struct {
     command_or_route: Slice_ABI,
     pipeline_yaml_path: Slice_ABI,
     payload: Slice_ABI,
     args_json: Slice_ABI,
+    stream_ctx: ?*InboundStreamCtx_ABI = null,
+    stream_vtable: ?*const InboundStreamVTable_ABI = null,
 };
 
 pub const InboundResponse_ABI = extern struct {
@@ -115,6 +133,37 @@ pub const KernelApiVTable_ABI = extern struct {
         level: u32,
         msg: Slice_ABI,
     ) callconv(.c) HostError_ABI,
+
+    /// Cold-path capability catalog exchange (`044A`). Host owns the JSON buffer and frees it
+    /// after `on_json` returns, avoiding cross-`.so` allocator mismatches.
+    get_capability_catalog_json: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        ctx: ?*anyopaque,
+        on_json: *const fn (ctx: ?*anyopaque, json: Slice_ABI) callconv(.c) void,
+    ) callconv(.c) HostError_ABI = null,
+
+    /// Non-blocking async command dispatch returning a `trace_id` immediately (`044A`/`044B`).
+    async_dispatch_command: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        req: *const InboundRequest_ABI,
+        out_trace_id: *[16]u8,
+    ) callconv(.c) HostError_ABI = null,
+
+    /// Push-based inbound stream slots for WebSocket / WebView / continuous feeds (`044A`/`044B`).
+    open_inbound_stream: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        req: *const InboundRequest_ABI,
+        out_handle: *?*InboundStreamHandle_ABI,
+    ) callconv(.c) HostError_ABI = null,
+    push_stream_chunk: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        handle: *InboundStreamHandle_ABI,
+        chunk: Slice_ABI,
+    ) callconv(.c) HostError_ABI = null,
+    close_inbound_stream: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        handle: *InboundStreamHandle_ABI,
+    ) callconv(.c) HostError_ABI = null,
 };
 
 pub const ExtensionManifest_ABI = extern struct {
