@@ -2,10 +2,11 @@ const std = @import("std");
 const EventKind = @import("EventKind.zig").EventKind;
 const EventPayload = @import("EventPayload.zig").EventPayload;
 const JobItem = @import("JobItem.zig").JobItem;
+const JobBatch = @import("JobBatch.zig").JobBatch;
 const KeyValue = @import("KeyValue.zig").KeyValue;
 
 /// Unified event envelope emitted by inbound extensions (HTTP, CLI, gRPC, FS diff)
-/// toward the Engine Daemon. Supports typed built-in events (`job`, `status`, `shutdown`)
+/// toward the Engine Daemon. Supports typed built-in events (`job`, `job_batch`, `status`, `shutdown`)
 /// as well as extensible `custom` events with variable key-value fields or JSON data.
 pub const DaemonEvent = struct {
     source: []const u8 = "unknown",
@@ -14,6 +15,10 @@ pub const DaemonEvent = struct {
 
     pub fn fromJob(source: []const u8, item: JobItem) DaemonEvent {
         return .{ .source = source, .payload = .{ .job = item } };
+    }
+
+    pub fn fromJobBatch(source: []const u8, batch: JobBatch) DaemonEvent {
+        return .{ .source = source, .payload = .{ .job_batch = batch } };
     }
 
     pub fn statusQuery(source: []const u8, job_id: ?u64) DaemonEvent {

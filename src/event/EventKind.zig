@@ -4,4 +4,5 @@ pub const EventKind = enum(u32) {
     status = 1,
     shutdown = 2,
     custom = 3,
+    job_batch = 4,
 };
