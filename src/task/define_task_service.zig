@@ -730,7 +730,7 @@ pub fn DiContainer(comptime ContextImpl: type) type {
                             } else if (@typeInfo(FType) == .@"struct") {
                                 const single = alloc.dupe(FType, &.{val}) catch {
                                     ctx.logErrorFmt("Task '{s}' out of memory allocating channel '{s}'", .{ spec.name, f_name });
-                                    return .out_of_memory;
+                                    return .fatal_error;
                                 };
                                 ctx.emitTypedSlice(f_key_z, FType, single) catch |err| {
                                     ctx.logErrorFmt("Task '{s}' failed to emit struct to channel '{s}': {s}", .{ spec.name, f_name, @errorName(err) });
