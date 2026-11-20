@@ -99,7 +99,7 @@ pub const Value_ABI = extern struct {
                 }
             },
             .bool => return fromBool(val),
-            .int => return fromInt(@intCast(val)),
+            .int => |int_info| return if (int_info.signedness == .unsigned and int_info.bits == 64) fromInt(@bitCast(@as(u64, val))) else fromInt(@intCast(val)),
             .float => return fromFloat(@floatCast(val)),
             .pointer => |ptr_info| {
                 if (ptr_info.size == .slice and ptr_info.child == u8) {

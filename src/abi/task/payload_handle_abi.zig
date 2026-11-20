@@ -92,6 +92,7 @@ pub const PayloadHandle_ABI = extern struct {
     }
 
     pub fn getReflected(self: PayloadHandle_ABI, field_name: []const u8) ?ReflectedValue_ABI {
+        if (self.len == 0) return null;
         if (self.reflect_fn) |rf| {
             if (self.ptr) |p| {
                 const val = rf(p, field_name.ptr, field_name.len);
@@ -105,6 +106,30 @@ pub const PayloadHandle_ABI = extern struct {
         return .{};
     }
 
+    fn reflectFieldVal(comptime FType: type, val: FType) ReflectedValue_ABI {
+        const finfo = @typeInfo(FType);
+        if (finfo == .bool) {
+            return .{ .tag = .boolean, .int_val = if (val) 1 else 0 };
+        } else if (finfo == .int) {
+            if (finfo.int.signedness == .unsigned) {
+                const u: u64 = @intCast(val);
+                return .{ .tag = .uint, .int_val = @bitCast(u) };
+            } else {
+                return .{ .tag = .int, .int_val = @intCast(val) };
+            }
+        } else if (finfo == .float) {
+            return .{ .tag = .float, .float_val = @floatCast(val) };
+        } else if (finfo == .pointer and finfo.pointer.size == .slice and finfo.pointer.child == u8) {
+            return .{ .tag = .string, .str_ptr = val.ptr, .str_len = val.len };
+        } else if (finfo == .optional) {
+            if (val) |unwrapped| {
+                return reflectFieldVal(finfo.optional.child, unwrapped);
+            }
+            return .{ .tag = .none };
+        }
+        return .{ .tag = .none };
+    }
+
     pub fn fromScalar(comptime T: type, item: *const T) PayloadHandle_ABI {
         const Trampoline = struct {
             fn reflect(ptr: *const anyopaque, field_ptr: [*]const u8, field_len: usize) callconv(.c) ReflectedValue_ABI {
@@ -115,17 +140,7 @@ pub const PayloadHandle_ABI = extern struct {
                     const s = info.@"struct";
                     inline for (s.field_names, s.field_types) |f_name, f_type| {
                         if (std.mem.eql(u8, f_name, field)) {
-                            const val = @field(typed, f_name);
-                            const finfo = @typeInfo(f_type);
-                            if (finfo == .bool) {
-                                return .{ .tag = .boolean, .int_val = if (val) 1 else 0 };
-                            } else if (finfo == .int) {
-                                return .{ .tag = .int, .int_val = @intCast(val) };
-                            } else if (finfo == .float) {
-                                return .{ .tag = .float, .float_val = @floatCast(val) };
-                            } else if (finfo == .pointer and finfo.pointer.size == .slice and finfo.pointer.child == u8) {
-                                return .{ .tag = .string, .str_ptr = val.ptr, .str_len = val.len };
-                            }
+                            return reflectFieldVal(f_type, @field(typed, f_name));
                         }
                     }
                 }
@@ -158,17 +173,7 @@ pub const PayloadHandle_ABI = extern struct {
                     const s = info.@"struct";
                     inline for (s.field_names, s.field_types) |f_name, f_type| {
                         if (std.mem.eql(u8, f_name, field)) {
-                            const val = @field(&typed[0], f_name);
-                            const finfo = @typeInfo(f_type);
-                            if (finfo == .bool) {
-                                return .{ .tag = .boolean, .int_val = if (val) 1 else 0 };
-                            } else if (finfo == .int) {
-                                return .{ .tag = .int, .int_val = @intCast(val) };
-                            } else if (finfo == .float) {
-                                return .{ .tag = .float, .float_val = @floatCast(val) };
-                            } else if (finfo == .pointer and finfo.pointer.size == .slice and finfo.pointer.child == u8) {
-                                return .{ .tag = .string, .str_ptr = val.ptr, .str_len = val.len };
-                            }
+                            return reflectFieldVal(f_type, @field(&typed[0], f_name));
                         }
                     }
                 }

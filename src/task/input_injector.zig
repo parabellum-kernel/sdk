@@ -90,7 +90,9 @@ pub fn resolveField(
     // 1c. Bound Input Channel check: scalar struct `T`
     if (@typeInfo(T) == .@"struct") {
         if (try ctx.inputPayload(key_z)) |handle| {
-            return handle.asScalar(T).*;
+            if (handle.repr == .typed and handle.len > 0 and handle.ptr != null and handle.element_size == @sizeOf(T)) {
+                return handle.asScalar(T).*;
+            }
         }
         // Fall back to nested struct injection (e.g. nested params)
         return injectInputs(T, ctx);
@@ -99,7 +101,7 @@ pub fn resolveField(
     // 1d. Bound Input Channel check: primitive scalar `T` (int, float, bool)
     if (@typeInfo(T) == .int or @typeInfo(T) == .float or @typeInfo(T) == .bool) {
         if (try ctx.inputPayload(key_z)) |handle| {
-            if (handle.len > 0 and handle.ptr != null) {
+            if (handle.repr == .typed and handle.len > 0 and handle.ptr != null and handle.element_size == @sizeOf(T)) {
                 return handle.asScalar(T).*;
             }
         }
@@ -147,12 +149,18 @@ fn convertValue(comptime T: type, val: types.Value_ABI) InputInjectorError!T {
             }
             return error.TypeMismatch;
         },
-        .int => {
+        .int => |int_info| {
             if (val.asInt()) |raw| {
+                if (int_info.signedness == .unsigned and int_info.bits == 64) {
+                    return @bitCast(raw);
+                }
+                if (int_info.signedness == .unsigned and raw >= 0) {
+                    return std.math.cast(T, @as(u64, @intCast(raw))) orelse error.TypeMismatch;
+                }
                 return std.math.cast(T, raw) orelse error.TypeMismatch;
             }
             if (val.asText()) |txt| {
-                const parsed = std.fmt.parseInt(T, txt, 10) catch return error.TypeMismatch;
+                const parsed = std.fmt.parseInt(T, txt, 0) catch return error.TypeMismatch;
                 return parsed;
             }
             return error.TypeMismatch;

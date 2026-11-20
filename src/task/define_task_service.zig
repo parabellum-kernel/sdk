@@ -727,9 +727,21 @@ pub fn DiContainer(comptime ContextImpl: type) type {
                                     ctx.logErrorFmt("Task '{s}' failed to emit slice to channel '{s}': {s}", .{ spec.name, f_name, @errorName(err) });
                                     return .fatal_error;
                                 };
+                            } else if (@typeInfo(FType) == .@"struct") {
+                                const single = alloc.dupe(FType, &.{val}) catch {
+                                    ctx.logErrorFmt("Task '{s}' out of memory allocating channel '{s}'", .{ spec.name, f_name });
+                                    return .out_of_memory;
+                                };
+                                ctx.emitTypedSlice(f_key_z, FType, single) catch |err| {
+                                    ctx.logErrorFmt("Task '{s}' failed to emit struct to channel '{s}': {s}", .{ spec.name, f_name, @errorName(err) });
+                                    return .fatal_error;
+                                };
                             } else {
-                                ctx.emitTypedRowTo(f_key_z, val) catch |err| {
-                                    ctx.logErrorFmt("Task '{s}' failed to emit row to channel '{s}': {s}", .{ spec.name, f_name, @errorName(err) });
+                                const fields = [_]types.NamedField_ABI{
+                                    types.NamedField_ABI.init(f_name, types.Value_ABI.fromAny(val)),
+                                };
+                                ctx.emitRowTo(f_key_z, &fields) catch |err| {
+                                    ctx.logErrorFmt("Task '{s}' failed to emit scalar to channel '{s}': {s}", .{ spec.name, f_name, @errorName(err) });
                                     return .fatal_error;
                                 };
                             }
