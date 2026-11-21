@@ -1,9 +1,12 @@
 const std = @import("std");
 
 pub const abi = @import("abi/mod.zig");
+pub const core = @import("core/mod.zig");
 pub const cli = @import("cli/mod.zig");
 pub const task = @import("task/mod.zig");
 pub const driver = @import("driver/mod.zig");
+pub const repository = @import("repository/mod.zig");
+pub const schema = @import("schema/mod.zig");
 pub const extension = @import("extension/mod.zig");
 pub const client = @import("client/mod.zig");
 pub const job = @import("job/mod.zig");
