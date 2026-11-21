@@ -1,9 +1,11 @@
 const std = @import("std");
 const common = @import("common.zig");
+const driver = @import("driver.zig");
 
 pub const Slice_ABI = common.Slice_ABI;
 pub const HostError_ABI = common.HostError_ABI;
 pub const SemVer_ABI = common.SemVer_ABI;
+pub const ConfigParam_ABI = driver.ConfigParam_ABI;
 
 pub const EXTENSION_MANIFEST_SYMBOL_NAME = "parabellum_extension_manifest";
 pub const EXTENSION_ABI_VERSION: u32 = 1;
@@ -14,6 +16,8 @@ pub const TransportCtx_ABI = opaque {};
 pub const CommandCtx_ABI = opaque {};
 pub const InboundStreamCtx_ABI = opaque {};
 pub const InboundStreamHandle_ABI = opaque {};
+pub const ConfigLoaderCtx_ABI = opaque {};
+pub const PipelineBuilderHandle_ABI = opaque {};
 
 pub const TelemetryEventKind_ABI = enum(u32) {
     pipeline_start = 1,
@@ -101,6 +105,190 @@ pub const InboundTransportVTable_ABI = extern struct {
     ) callconv(.c) HostError_ABI = null,
 };
 
+pub const RuntimeConfig_ABI = extern struct {
+    workers: usize = 1,
+    default_network: Slice_ABI = Slice_ABI.empty,
+    /// 0 = sequential, 1 = dag
+    scheduler: u32 = 0,
+    /// 0 = directed, 1 = type_driven, 2 = hybrid
+    routing: u32 = 0,
+    max_inflight_bytes: u64 = 0,
+    has_max_inflight_bytes: bool = false,
+    retain_all: bool = false,
+    max_activations_per_node: u32 = 8,
+};
+
+pub const InputBinding_ABI = extern struct {
+    param_name: Slice_ABI,
+    stream_ref: Slice_ABI,
+    where_filter: Slice_ABI = Slice_ABI.empty,
+};
+
+pub const ChannelOutput_ABI = extern struct {
+    name: Slice_ABI,
+    from_field: Slice_ABI = Slice_ABI.empty,
+    schema_ref: Slice_ABI = Slice_ABI.empty,
+    datasource: Slice_ABI = Slice_ABI.empty,
+    filter: Slice_ABI = Slice_ABI.empty,
+    retain: bool = false,
+    params_ptr: [*]const ConfigParam_ABI = (&[_]ConfigParam_ABI{}).ptr,
+    params_len: usize = 0,
+};
+
+pub const TaskStep_ABI = extern struct {
+    id: Slice_ABI,
+    module: Slice_ABI,
+    task: Slice_ABI,
+    networks_ptr: [*]const Slice_ABI = (&[_]Slice_ABI{}).ptr,
+    networks_len: usize = 0,
+    inputs_ptr: [*]const InputBinding_ABI = (&[_]InputBinding_ABI{}).ptr,
+    inputs_len: usize = 0,
+    where_filter: Slice_ABI = Slice_ABI.empty,
+    concurrency: usize = 0,
+    has_concurrency: bool = false,
+    static_params_ptr: [*]const ConfigParam_ABI = (&[_]ConfigParam_ABI{}).ptr,
+    static_params_len: usize = 0,
+    outputs_ptr: [*]const ChannelOutput_ABI = (&[_]ChannelOutput_ABI{}).ptr,
+    outputs_len: usize = 0,
+    after_ptr: [*]const Slice_ABI = (&[_]Slice_ABI{}).ptr,
+    after_len: usize = 0,
+};
+
+pub const RouterCase_ABI = extern struct {
+    when_predicate: Slice_ABI,
+    goto_pipeline: Slice_ABI,
+};
+
+pub const NetworkSpec_ABI = extern struct {
+    id: Slice_ABI,
+    driver: Slice_ABI,
+    default_action: Slice_ABI = Slice_ABI.empty,
+};
+
+pub const ApiFieldMapping_ABI = extern struct {
+    field_name: Slice_ABI,
+    source_kind: Slice_ABI = Slice_ABI.empty,
+    source_expr: Slice_ABI = Slice_ABI.empty,
+    logical_type: Slice_ABI = Slice_ABI.empty,
+    default_value: Slice_ABI = Slice_ABI.empty,
+};
+
+pub const ApiSpecHeader_ABI = extern struct {
+    datasource_id: Slice_ABI,
+    api_id: Slice_ABI,
+    base_url: Slice_ABI = Slice_ABI.empty,
+    network: Slice_ABI = Slice_ABI.empty,
+    auth_kind: Slice_ABI = Slice_ABI.empty,
+    auth_token: Slice_ABI = Slice_ABI.empty,
+    auth_header_name: Slice_ABI = Slice_ABI.empty,
+    auth_query_param: Slice_ABI = Slice_ABI.empty,
+    auth_username: Slice_ABI = Slice_ABI.empty,
+    auth_password: Slice_ABI = Slice_ABI.empty,
+    auth_credentials_path: Slice_ABI = Slice_ABI.empty,
+    auth_scope: Slice_ABI = Slice_ABI.empty,
+    auth_token_uri: Slice_ABI = Slice_ABI.empty,
+    headers_ptr: [*]const ConfigParam_ABI = (&[_]ConfigParam_ABI{}).ptr,
+    headers_len: usize = 0,
+};
+
+pub const ApiEndpoint_ABI = extern struct {
+    name: Slice_ABI,
+    method: Slice_ABI = Slice_ABI.empty,
+    path: Slice_ABI = Slice_ABI.empty,
+    query_ptr: [*]const ConfigParam_ABI = (&[_]ConfigParam_ABI{}).ptr,
+    query_len: usize = 0,
+    headers_ptr: [*]const ConfigParam_ABI = (&[_]ConfigParam_ABI{}).ptr,
+    headers_len: usize = 0,
+    request_format: Slice_ABI = Slice_ABI.empty,
+    request_content_type: Slice_ABI = Slice_ABI.empty,
+    request_body_template: Slice_ABI = Slice_ABI.empty,
+    request_multipart_boundary: Slice_ABI = Slice_ABI.empty,
+    response_format: Slice_ABI = Slice_ABI.empty,
+    response_root_path: Slice_ABI = Slice_ABI.empty,
+    success_status_ptr: [*]const u16 = (&[_]u16{}).ptr,
+    success_status_len: usize = 0,
+    mapping_ptr: [*]const ApiFieldMapping_ABI = (&[_]ApiFieldMapping_ABI{}).ptr,
+    mapping_len: usize = 0,
+};
+
+pub const PipelineBuilderVTable_ABI = extern struct {
+    set_runtime: *const fn (b: *PipelineBuilderHandle_ABI, rt: *const RuntimeConfig_ABI) callconv(.c) HostError_ABI,
+    add_module: *const fn (b: *PipelineBuilderHandle_ABI, name: Slice_ABI, path: Slice_ABI) callconv(.c) HostError_ABI,
+    /// role: 0 = source, 1 = sink, 2 = duplex
+    add_datasource: *const fn (
+        b: *PipelineBuilderHandle_ABI,
+        id: Slice_ABI,
+        driver: Slice_ABI,
+        role: u32,
+        params_ptr: [*]const ConfigParam_ABI,
+        params_len: usize,
+    ) callconv(.c) HostError_ABI,
+    /// routing: -1 = inherit, 0 = directed, 1 = type_driven, 2 = hybrid
+    begin_pipeline: *const fn (
+        b: *PipelineBuilderHandle_ABI,
+        name: Slice_ABI,
+        routing: i32,
+        enabled: bool,
+        concurrency: usize,
+        has_concurrency: bool,
+    ) callconv(.c) HostError_ABI,
+    add_task_step: *const fn (b: *PipelineBuilderHandle_ABI, spec: *const TaskStep_ABI) callconv(.c) HostError_ABI,
+    add_router_step: *const fn (
+        b: *PipelineBuilderHandle_ABI,
+        id: Slice_ABI,
+        cases_ptr: [*]const RouterCase_ABI,
+        cases_len: usize,
+        default_pipeline: Slice_ABI,
+    ) callconv(.c) HostError_ABI,
+    add_extension_config: *const fn (
+        b: *PipelineBuilderHandle_ABI,
+        name: Slice_ABI,
+        listen: Slice_ABI,
+        env_ptr: [*]const ConfigParam_ABI,
+        env_len: usize,
+    ) callconv(.c) HostError_ABI,
+    set_metadata_paths: *const fn (
+        b: *PipelineBuilderHandle_ABI,
+        capabilities_path: Slice_ABI,
+        schemas_path: Slice_ABI,
+    ) callconv(.c) HostError_ABI,
+    set_capability_catalog_json: ?*const fn (
+        b: *PipelineBuilderHandle_ABI,
+        json: Slice_ABI,
+    ) callconv(.c) HostError_ABI = null,
+    add_schema_table: ?*const fn (
+        b: *PipelineBuilderHandle_ABI,
+        domain: Slice_ABI,
+        table: Slice_ABI,
+        columns_ptr: [*]const Slice_ABI,
+        columns_len: usize,
+    ) callconv(.c) HostError_ABI = null,
+    add_network: ?*const fn (
+        b: *PipelineBuilderHandle_ABI,
+        spec: *const NetworkSpec_ABI,
+    ) callconv(.c) HostError_ABI = null,
+    begin_datasource_api: ?*const fn (
+        b: *PipelineBuilderHandle_ABI,
+        spec: *const ApiSpecHeader_ABI,
+    ) callconv(.c) HostError_ABI = null,
+    add_datasource_api_endpoint: ?*const fn (
+        b: *PipelineBuilderHandle_ABI,
+        datasource_id: Slice_ABI,
+        ep: *const ApiEndpoint_ABI,
+    ) callconv(.c) HostError_ABI = null,
+};
+
+pub const ConfigLoaderVTable_ABI = extern struct {
+    /// Loads a config file (e.g. pipeline.yaml + imports + .env) and populates the host's PipelineAST
+    /// directly via `PipelineBuilderVTable_ABI`, with zero intermediate serialization.
+    load_pipeline: *const fn (
+        ctx: *ConfigLoaderCtx_ABI,
+        pipeline_path: Slice_ABI,
+        builder: *PipelineBuilderHandle_ABI,
+        builder_vtable: *const PipelineBuilderVTable_ABI,
+    ) callconv(.c) HostError_ABI,
+};
+
 pub const KernelApiVTable_ABI = extern struct {
     subscribe_telemetry: *const fn (
         kernel: *KernelHandle_ABI,
@@ -163,6 +351,13 @@ pub const KernelApiVTable_ABI = extern struct {
     close_inbound_stream: ?*const fn (
         kernel: *KernelHandle_ABI,
         handle: *InboundStreamHandle_ABI,
+    ) callconv(.c) HostError_ABI = null,
+
+    register_config_loader: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        format_name: [*:0]const u8,
+        ctx: *ConfigLoaderCtx_ABI,
+        vtable: *const ConfigLoaderVTable_ABI,
     ) callconv(.c) HostError_ABI = null,
 };
 

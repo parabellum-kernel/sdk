@@ -2,6 +2,7 @@ pub const common = @import("common.zig");
 pub const driver = @import("driver.zig");
 pub const extension = @import("extension.zig");
 pub const task = @import("task/mod.zig");
+pub const validation = @import("validation.zig");
 
 pub const SemVer_ABI = common.SemVer_ABI;
 pub const Slice_ABI = common.Slice_ABI;
@@ -35,4 +36,10 @@ pub const InboundResponse_ABI = extension.InboundResponse_ABI;
 pub const InboundTransportVTable_ABI = extension.InboundTransportVTable_ABI;
 pub const KernelApiVTable_ABI = extension.KernelApiVTable_ABI;
 pub const ExtensionManifest_ABI = extension.ExtensionManifest_ABI;
+
+pub const ValidationStatus_ABI = validation.ValidationStatus_ABI;
+pub const SectionValidationResult_ABI = validation.SectionValidationResult_ABI;
+pub const SectionValidatorFn_ABI = validation.SectionValidatorFn_ABI;
+pub const ConfigFormat_ABI = validation.ConfigFormat_ABI;
+pub const ConfigValidateFn_ABI = validation.ConfigValidateFn_ABI;
 
