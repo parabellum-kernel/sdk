@@ -1,11 +1,13 @@
 const std = @import("std");
 const common = @import("common.zig");
 const driver = @import("driver.zig");
+const task = @import("task/mod.zig");
 
 pub const Slice_ABI = common.Slice_ABI;
 pub const HostError_ABI = common.HostError_ABI;
 pub const SemVer_ABI = common.SemVer_ABI;
 pub const ConfigParam_ABI = driver.ConfigParam_ABI;
+pub const ReflectedValue_ABI = task.ReflectedValue_ABI;
 
 pub const EXTENSION_MANIFEST_SYMBOL_NAME = "parabellum_extension_manifest";
 pub const EXTENSION_ABI_VERSION: u32 = 1;
@@ -18,6 +20,9 @@ pub const InboundStreamCtx_ABI = opaque {};
 pub const InboundStreamHandle_ABI = opaque {};
 pub const ConfigLoaderCtx_ABI = opaque {};
 pub const PipelineBuilderHandle_ABI = opaque {};
+pub const DslPredicateCtx_ABI = opaque {};
+pub const AstPassCtx_ABI = opaque {};
+pub const AstPassHost_ABI = opaque {};
 
 pub const TelemetryEventKind_ABI = enum(u32) {
     pipeline_start = 1,
@@ -289,6 +294,34 @@ pub const ConfigLoaderVTable_ABI = extern struct {
     ) callconv(.c) HostError_ABI,
 };
 
+pub const CommandHandlerFn_ABI = *const fn (
+    ctx: *CommandCtx_ABI,
+    req: *const InboundRequest_ABI,
+    out_resp: *InboundResponse_ABI,
+) callconv(.c) HostError_ABI;
+
+pub const DslPredicateFn_ABI = *const fn (
+    ctx: ?*DslPredicateCtx_ABI,
+    arg: *const ReflectedValue_ABI,
+    param_literal: Slice_ABI,
+) callconv(.c) bool;
+
+pub const AstPassHostVTable_ABI = extern struct {
+    pipeline_count: *const fn (host: *AstPassHost_ABI) callconv(.c) usize,
+    pipeline_name_at: *const fn (host: *AstPassHost_ABI, idx: usize) callconv(.c) Slice_ABI,
+    step_count: *const fn (host: *AstPassHost_ABI, pipeline_name: Slice_ABI) callconv(.c) usize,
+    step_id_at: *const fn (host: *AstPassHost_ABI, pipeline_name: Slice_ABI, idx: usize) callconv(.c) Slice_ABI,
+    prepend_task_step: *const fn (host: *AstPassHost_ABI, pipeline_name: Slice_ABI, step: *const TaskStep_ABI) callconv(.c) HostError_ABI,
+    append_task_step: *const fn (host: *AstPassHost_ABI, pipeline_name: Slice_ABI, step: *const TaskStep_ABI) callconv(.c) HostError_ABI,
+    set_step_where_filter: *const fn (host: *AstPassHost_ABI, pipeline_name: Slice_ABI, step_id: Slice_ABI, where_filter: Slice_ABI) callconv(.c) HostError_ABI,
+};
+
+pub const AstPassRunFn_ABI = *const fn (
+    ctx: ?*AstPassCtx_ABI,
+    host: *AstPassHost_ABI,
+    host_vtable: *const AstPassHostVTable_ABI,
+) callconv(.c) HostError_ABI;
+
 pub const KernelApiVTable_ABI = extern struct {
     subscribe_telemetry: *const fn (
         kernel: *KernelHandle_ABI,
@@ -358,6 +391,38 @@ pub const KernelApiVTable_ABI = extern struct {
         format_name: [*:0]const u8,
         ctx: *ConfigLoaderCtx_ABI,
         vtable: *const ConfigLoaderVTable_ABI,
+    ) callconv(.c) HostError_ABI = null,
+
+    /// Resolves a configured datasource by ID into its opaque `*RepoHandle_ABI` and `*const StorageRepositoryVTable_ABI`.
+    get_repository: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        datasource_id: [*:0]const u8,
+        out_repo: *?*anyopaque,
+        out_vtable: *?*const anyopaque,
+    ) callconv(.c) HostError_ABI = null,
+
+    /// Registers a protocol-agnostic command on `CommandRegistry` -> `InboundDispatcher`.
+    register_command: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        cmd_name: [*:0]const u8,
+        ctx: *CommandCtx_ABI,
+        handler_fn: CommandHandlerFn_ABI,
+    ) callconv(.c) HostError_ABI = null,
+
+    /// Registers a custom `where_filter` / `router` predicate on `DslRegistry`.
+    register_dsl_predicate: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        name: [*:0]const u8,
+        ctx: ?*DslPredicateCtx_ABI,
+        predicate_fn: DslPredicateFn_ABI,
+    ) callconv(.c) HostError_ABI = null,
+
+    /// Registers a post-YAML `AstPass` hook on `AstPassRegistry`.
+    register_ast_pass: ?*const fn (
+        kernel: *KernelHandle_ABI,
+        name: [*:0]const u8,
+        ctx: ?*AstPassCtx_ABI,
+        run_fn: AstPassRunFn_ABI,
     ) callconv(.c) HostError_ABI = null,
 };
 
