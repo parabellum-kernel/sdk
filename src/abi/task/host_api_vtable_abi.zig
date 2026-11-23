@@ -216,6 +216,15 @@ pub const HostApiVTable_ABI = extern struct {
         length: u64,
     ) callconv(.c) HostError_ABI = null,
 
+    /// Binds an existing local file at `path_ptr[0..path_len]` as a zero-copy read-only backing
+    /// for the named output stream channel without copying its bytes into memory or spill.
+    stream_bind_file: ?*const fn (
+        ctx: *TaskContext_ABI,
+        channel_name: ?[*:0]const u8,
+        path_ptr: [*]const u8,
+        path_len: usize,
+    ) callconv(.c) HostError_ABI = null,
+
     /// Finalizes the named output stream channel and registers its `StreamBacking` handle on the blackboard.
     stream_finish: ?*const fn (
         ctx: *TaskContext_ABI,

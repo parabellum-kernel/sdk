@@ -44,6 +44,13 @@ pub const StreamEmitter = struct {
         if (err != .ok) try mapHostError(err);
     }
 
+    pub fn bindFile(self: StreamEmitter, path: []const u8) SdkError!void {
+        if (path.len == 0) return error.InvalidOperation;
+        const f = self.ctx.raw.host.stream_bind_file orelse return error.InvalidOperation;
+        const err = f(self.ctx.raw, self.channel_name.ptr, path.ptr, path.len);
+        if (err != .ok) try mapHostError(err);
+    }
+
     pub fn finish(self: StreamEmitter) SdkError!StreamOutput {
         const f = self.ctx.raw.host.stream_finish orelse return error.InvalidOperation;
         const err = f(self.ctx.raw, self.channel_name.ptr);
