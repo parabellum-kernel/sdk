@@ -138,6 +138,10 @@ pub const ChannelOutput_ABI = extern struct {
     retain: bool = false,
     params_ptr: [*]const ConfigParam_ABI = (&[_]ConfigParam_ABI{}).ptr,
     params_len: usize = 0,
+    append_ptr: [*]const ConfigParam_ABI = (&[_]ConfigParam_ABI{}).ptr,
+    append_len: usize = 0,
+    remove_ptr: [*]const Slice_ABI = (&[_]Slice_ABI{}).ptr,
+    remove_len: usize = 0,
 };
 
 pub const TaskStep_ABI = extern struct {
