@@ -12,6 +12,21 @@ pub const SemVer_ABI = extern struct {
         if (self.minor != min_required.minor) return self.minor > min_required.minor;
         return self.patch >= min_required.patch;
     }
+
+    /// Parses a SemVer string (e.g. `"2.0.5"` or `"2.0.5-rc1"`) at comptime.
+    pub fn parse(comptime s: []const u8) SemVer_ABI {
+        @setEvalBranchQuota(4000);
+        const core = if (std.mem.indexOfScalar(u8, s, '-')) |dash| s[0..dash] else s;
+        var it = std.mem.splitScalar(u8, core, '.');
+        const maj_s = it.next() orelse "0";
+        const min_s = it.next() orelse "0";
+        const pat_s = it.next() orelse "0";
+        return .{
+            .major = std.fmt.parseInt(u32, maj_s, 10) catch 0,
+            .minor = std.fmt.parseInt(u32, min_s, 10) catch 0,
+            .patch = std.fmt.parseInt(u32, pat_s, 10) catch 0,
+        };
+    }
 };
 
 /// Current SDK / Engine compatibility version embedded automatically into manifests.

@@ -1,6 +1,6 @@
 .{
     .name = .parabellum_sdk,
-    .version = "2.0.4",
+    .version = "2.0.5",
     .minimum_zig_version = "0.17.1",
     .fingerprint = 0x9d4bec09fa94a0e3,
     .dependencies = .{},
