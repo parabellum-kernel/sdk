@@ -5,58 +5,76 @@ pub const PluginOptions = struct {
     root_source_file: std.Build.LazyPath,
     target: std.Build.ResolvedTarget,
     optimize: std.builtin.OptimizeMode,
+    linkage: std.builtin.LinkMode = .dynamic,
     link_libc: bool = true,
 };
 
-/// Helper for building a standalone `.so` Task Catalog plugin (`lib<name>.so`)
-/// against `parabellum_sdk`.
+fn buildPluginLib(
+    b: *std.Build,
+    sdk_dep: *std.Build.Dependency,
+    opts: PluginOptions,
+    lib_name: []const u8,
+    dynamic_symbol: []const u8,
+    static_symbol: []const u8,
+) *std.Build.Step.Compile {
+    const mod = b.createModule(.{
+        .root_source_file = opts.root_source_file,
+        .target = opts.target,
+        .optimize = opts.optimize,
+        .link_libc = opts.link_libc,
+    });
+    mod.addImport("parabellum_sdk", sdk_dep.module("parabellum_sdk"));
+
+    const po = b.addOptions();
+    po.addOption(bool, "static_archive", opts.linkage == .static);
+    po.addOption([]const u8, "manifest_symbol", if (opts.linkage == .static) static_symbol else dynamic_symbol);
+    mod.addOptions("plugin_options", po);
+
+    const lib = b.addLibrary(.{
+        .linkage = opts.linkage,
+        .name = lib_name,
+        .root_module = mod,
+    });
+    if (opts.linkage == .static) {
+        lib.bundle_compiler_rt = false;
+    }
+    return lib;
+}
+
+/// Helper for building a Task Catalog plugin (`lib<name>.so` or `.a`) against `parabellum_sdk`.
 pub fn addTaskPlugin(b: *std.Build, sdk_dep: *std.Build.Dependency, opts: PluginOptions) *std.Build.Step.Compile {
-    const mod = b.createModule(.{
-        .root_source_file = opts.root_source_file,
-        .target = opts.target,
-        .optimize = opts.optimize,
-        .link_libc = opts.link_libc,
-    });
-    mod.addImport("parabellum_sdk", sdk_dep.module("parabellum_sdk"));
-    return b.addLibrary(.{
-        .linkage = .dynamic,
-        .name = opts.name,
-        .root_module = mod,
-    });
+    return buildPluginLib(
+        b,
+        sdk_dep,
+        opts,
+        opts.name,
+        "parabellum_module_manifest",
+        b.fmt("parabellum_module_{s}_manifest", .{opts.name}),
+    );
 }
 
-/// Helper for building a standalone `.so` Datasource Driver plugin (`libdriver_<name>.so`)
-/// against `parabellum_sdk`.
+/// Helper for building a Datasource Driver plugin (`libdriver_<name>.so` or `.a`) against `parabellum_sdk`.
 pub fn addDriverPlugin(b: *std.Build, sdk_dep: *std.Build.Dependency, opts: PluginOptions) *std.Build.Step.Compile {
-    const mod = b.createModule(.{
-        .root_source_file = opts.root_source_file,
-        .target = opts.target,
-        .optimize = opts.optimize,
-        .link_libc = opts.link_libc,
-    });
-    mod.addImport("parabellum_sdk", sdk_dep.module("parabellum_sdk"));
-    return b.addLibrary(.{
-        .linkage = .dynamic,
-        .name = b.fmt("driver_{s}", .{opts.name}),
-        .root_module = mod,
-    });
+    return buildPluginLib(
+        b,
+        sdk_dep,
+        opts,
+        b.fmt("driver_{s}", .{opts.name}),
+        "parabellum_driver_manifest",
+        b.fmt("parabellum_driver_{s}_manifest", .{opts.name}),
+    );
 }
 
-/// Helper for building a standalone `.so` Kernel Extension plugin (`libext_<name>.so`)
-/// against `parabellum_sdk`.
+/// Helper for building a Kernel Extension plugin (`libext_<name>.so` or `.a`) against `parabellum_sdk`.
 pub fn addExtensionPlugin(b: *std.Build, sdk_dep: *std.Build.Dependency, opts: PluginOptions) *std.Build.Step.Compile {
-    const mod = b.createModule(.{
-        .root_source_file = opts.root_source_file,
-        .target = opts.target,
-        .optimize = opts.optimize,
-        .link_libc = opts.link_libc,
-    });
-    mod.addImport("parabellum_sdk", sdk_dep.module("parabellum_sdk"));
-    return b.addLibrary(.{
-        .linkage = .dynamic,
-        .name = b.fmt("ext_{s}", .{opts.name}),
-        .root_module = mod,
-    });
+    return buildPluginLib(
+        b,
+        sdk_dep,
+        opts,
+        b.fmt("ext_{s}", .{opts.name}),
+        "parabellum_extension_manifest",
+        b.fmt("parabellum_extension_{s}_manifest", .{opts.name}),
+    );
 }
 
 pub const LinkHostOptions = struct {
